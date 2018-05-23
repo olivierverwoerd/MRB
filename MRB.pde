@@ -5,27 +5,6 @@ import cc.arduino.*;
 import org.firmata.*;////Firmata is crucial for com between arduino and processing
 //////////////////////////////////////Import Math Libraries/////////////////////
 /////////////////////////You don't need all of them////////////////////////////
-
-import org.apache.commons.math3.geometry.hull.*;
-import org.apache.commons.math3.geometry.enclosing.*;
-import org.apache.commons.math3.geometry.spherical.twod.*;
-import org.apache.commons.math3.geometry.spherical.oned.*;
-import org.apache.commons.math3.geometry.euclidean.threed.*;
-import org.apache.commons.math3.geometry.euclidean.twod.*;
-import org.apache.commons.math3.geometry.euclidean.twod.hull.*;
-import org.apache.commons.math3.geometry.euclidean.oned.*;
-import org.apache.commons.math3.geometry.partitioning.*;
-import org.apache.commons.math3.geometry.partitioning.utilities.*;
-import org.apache.commons.math3.optimization.*;
-import org.apache.commons.math3.optimization.linear.*;
-import org.apache.commons.math3.optimization.direct.*;
-import org.apache.commons.math3.optimization.fitting.*;
-import org.apache.commons.math3.optimization.univariate.*;
-import org.apache.commons.math3.optimization.general.*;
-import org.apache.commons.math3.util.*;
-import org.apache.commons.math3.genetics.*;
-import org.apache.commons.math3.transform.*;
-import org.apache.commons.math3.filter.*;
 ///////////////////////////////////IMPORT OpenCV Core LIBRARIES/////////////////////////////
 //////////////////////////////////and some graphics and UI req./////////////////////////////
 import gab.opencv.*;
@@ -105,7 +84,7 @@ scroll3= new ControlP5(this);
 cp5=new ControlP5(this);
 cp5.addSlider("slidervalue").setPosition(640,485).setRange(0,255);
 cp6=new ControlP5(this);
-cp6.addSlider("Height").setPosition(640,500).setRange(0,200);
+cp6.addSlider("Height").setPosition(640,500).setRange(0,450);
 cp7=new ControlP5(this);
 cp7.addSlider("KP").setPosition(640,515).setRange(0,20);
 cp8=new ControlP5(this);
