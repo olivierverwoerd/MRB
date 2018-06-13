@@ -1,3 +1,4 @@
+
 import processing.serial.*;
 
 ///////////////////////////////////////Import Arduino Libraries//////////////////
@@ -16,17 +17,24 @@ import org.opencv.core.Scalar;
 import org.opencv.core.CvType;
 import org.opencv.imgproc.Imgproc;
 import processing.video.*;
+import ddf.minim.*;
+import ddf.minim.ugens.*;
 import java.awt.Rectangle;
 import processing.serial.*;  
 import controlP5.*;
 ////////////////////////////////DECLARE VARIABLES//////////////////
 //Arduino arduinoPort;//uncomment if arduino is connected
 Capture video;
+//Declare audio variables:
+Minim       minim;
+AudioOutput out;
+Oscil       wave;
+//Declare OpenCV
 OpenCV opencv;
 PImage src, colorFilteredImage, sat, Va1, Va2;
 Range range1, range2, range3, range4, range5, range6;
 ControlP5 scroll1, scroll2, scroll3, scroll4, scroll5, scroll6, cp5, cp6, cp7, cp8, cp9;
-int max1, min1, max2, min2, max3, min3, max4, min4, max5, min5, max6, min6, dh, ball, hand;
+int max1, min1, max2, min2, max3, min3, max4, min4, max5, min5, max6, min6, dh, ball, hand, error, previousError, integral, correction, pOut, iOut, dOut;
 float kp, ki, kd;
 ArrayList<Contour> contours1, contours2;
 int sliderValue=0, DH;
@@ -34,6 +42,7 @@ String val;
 boolean firstContact = false, altTrackVideo = false;
 int n=1; int i=1;
 Arduino arduino;
+//Necessary?
 int[] values = { Arduino.LOW, Arduino.LOW, Arduino.LOW, Arduino.LOW,
  Arduino.LOW, Arduino.LOW, Arduino.LOW, Arduino.LOW, Arduino.LOW,
  Arduino.LOW, Arduino.LOW, Arduino.LOW, Arduino.LOW, Arduino.LOW };
@@ -61,13 +70,22 @@ void setup() {
   for (int i = 0; i <= 13; i++)
     arduino.pinMode(i, Arduino.OUTPUT);
     
-String[] cameras = Capture.list();
+  //String[] cameras = Capture.list();
 
-//Change video source
-video = new Capture(this, 640, 480);//Access your webcam by default
-//video = new Capture(this, 640, 480, "name=Microsoft LifeCam Rear,size=640x480,fps=30",30);
+  //Change video source
+  video = new Capture(this, 640, 480);//Access your webcam by default
+  //video = new Capture(this, 640, 480, "name=Microsoft LifeCam Rear,size=640x480,fps=30",30);
 
-
+  minim = new Minim(this);
+  
+  // use the getLineOut method of the Minim object to get an AudioOutput object
+  out = minim.getLineOut();
+  
+  // create a sine wave Oscil, set to 440 Hz, at 0.5 amplitude
+  wave = new Oscil( 440, 0.5f, Waves.SINE );
+  // patch the Oscil to the output
+  wave.patch( out );
+  
 ////////////////////////////Iniate Serial Com with arduino and define pins as below/////////////////////
 //arduinoPort = new Arduino(this, "COM3", 57600);
 //arduinoPort.pinMode(11, Arduino.OUTPUT);    // Pin 11 conected a IN4
@@ -281,7 +299,16 @@ void draw() {
   //////////////Arduno code////////////////////////// <- This is where the magic happens
   //ball = indicated in red. controlled on left
   //hand = indicated in blue. controlled on right
-  arduino.analogWrite(13, ball);
+  wave.setFrequency((src.height - ball) + 200);
+  
+  error = ball - hand;
+  pOut = (int) kp * error;
+  integral += error;
+  iOut = (int) ki * integral;
+  dOut = (int) kd * (error - previousError);
+  correction = pOut + iOut + dOut;
+  arduino.analogWrite(13, correction);
+  previousError = error;
 } 
 //////////////A very Simple UI////////////////////
 ////////////////SLIDER BARS//////////////////////
