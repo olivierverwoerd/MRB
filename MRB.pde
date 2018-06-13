@@ -34,10 +34,10 @@ OpenCV opencv;
 PImage src, colorFilteredImage, sat, Va1, Va2;
 Range range1, range2, range3, range4, range5, range6;
 ControlP5 scroll1, scroll2, scroll3, scroll4, scroll5, scroll6, cp5, cp6, cp7, cp8, cp9;
-int max1, min1, max2, min2, max3, min3, max4, min4, max5, min5, max6, min6, dh, ball, hand, error, previousError, integral, correction, pOut, iOut, dOut;
+int max1, min1, max2, min2, max3, min3, max4, min4, max5, min5, max6, min6, dh, ball = 0, hand, error, previousError, integral, correction, pOut, iOut, dOut;
 float kp, ki, kd;
 ArrayList<Contour> contours1, contours2;
-int sliderValue=0, DH;
+int sliderValue=0, DH, counter = 0;
 String val;
 boolean firstContact = false, altTrackVideo = false;
 int n=1; int i=1;
@@ -105,11 +105,11 @@ cp5.addSlider("slidervalue").setPosition(900,485).setRange(0,255);
 cp6=new ControlP5(this);
 cp6.addSlider("Height").setPosition(900,500).setRange(0,450);
 cp7=new ControlP5(this);
-cp7.addSlider("KP").setPosition(900,515).setRange(0,20);
+cp7.addSlider("KP").setPosition(900,515).setRange(0,4);
 cp8=new ControlP5(this);
-cp8.addSlider("KI").setPosition(900,530).setRange(0,20);
+cp8.addSlider("KI").setPosition(900,530).setRange(0,4);
 cp9=new ControlP5(this);
-cp9.addSlider("KD").setPosition(900,545).setRange(0,20);
+cp9.addSlider("KD").setPosition(900,545).setRange(0,4);
 range1= scroll1.addRange("Min H, Range H, Max H")
 .setBroadcast(false)   .setPosition(100/4,485)
 .setSize(320,20)       .setHandleSize(10)
@@ -261,7 +261,7 @@ void draw() {
     noStroke(); 
     fill(255, 0, 0);
     ellipse(r.x + r.width/2, r.y + r.height/2, 30, 30);
-    ball = r.y;
+    ball = src.height - r.y;
     //output X,Y coordinates in pixels every 10 frames
     /*
     if(n==10){
@@ -275,7 +275,12 @@ void draw() {
     }
     n=n+1;
     */
+    counter = 0;
   }
+  else if (counter > 100){
+    ball = 0;
+  }
+    
   if (contours2.size() > 0) {
     // <9> Get the first contour, which will be the largest one
     Contour biggestContour2 = contours2.get(0);
@@ -294,20 +299,32 @@ void draw() {
     noStroke(); 
     fill(0, 0, 255);
     ellipse(r.x + r.width/2, r.y + r.height/2, 30, 30);
-    hand = r.y;
+    hand = src.height - r.y;
   }
   //////////////Arduno code////////////////////////// <- This is where the magic happens
   //ball = indicated in red. controlled on left
   //hand = indicated in blue. controlled on right
-  wave.setFrequency((src.height - ball) + 200);
+  out.close();
+  //wave.setFrequency((ball) + 200);
+
   
-  error = ball - hand;
+  
+  error = hand - ball;
   pOut = (int) kp * error;
-  integral += error;
+  integral = integral + (error / 100);
   iOut = (int) ki * integral;
   dOut = (int) kd * (error - previousError);
   correction = pOut + iOut + dOut;
-  arduino.analogWrite(13, correction);
+  if(correction > 255){
+    correction = 255;
+  }
+  else if(correction < 0){
+    correction = 0;
+  }
+  
+  arduino.analogWrite(12, correction);
+  counter++;
+  println(correction);
   previousError = error;
 } 
 //////////////A very Simple UI////////////////////
