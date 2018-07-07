@@ -35,7 +35,7 @@ PImage src, colorFilteredImage, sat, Va1, Va2;
 Range range1, range2, range3, range4, range5, range6;
 ControlP5 scroll1, scroll2, scroll3, scroll4, scroll5, scroll6, cp5, cp6, cp7, cp8, cp9;
 int max1, min1, max2, min2, max3, min3, max4, min4, max5, min5, max6, min6, dh, ball = 0, hand, error, previousError, integral, correction, pOut, iOut, dOut;
-float kp, ki, kd;
+float kp = 0.007, ki = 0.036, kd = 0.003;
 ArrayList<Contour> contours1, contours2;
 int sliderValue=0, DH, counter = 0;
 String val;
@@ -105,11 +105,11 @@ cp5.addSlider("slidervalue").setPosition(900,485).setRange(0,255);
 cp6=new ControlP5(this);
 cp6.addSlider("Height").setPosition(900,500).setRange(0,450);
 cp7=new ControlP5(this);
-cp7.addSlider("KP").setPosition(900,515).setRange(0,4);
+cp7.addSlider("KP").setPosition(900,515).setRange(0,0.01);
 cp8=new ControlP5(this);
-cp8.addSlider("KI").setPosition(900,530).setRange(0,4);
+cp8.addSlider("KI").setPosition(900,530).setRange(0,0.1);
 cp9=new ControlP5(this);
-cp9.addSlider("KD").setPosition(900,545).setRange(0,4);
+cp9.addSlider("KD").setPosition(900,545).setRange(0,0.1);
 range1= scroll1.addRange("Min H, Range H, Max H")
 .setBroadcast(false)   .setPosition(100/4,485)
 .setSize(320,20)       .setHandleSize(10)
@@ -308,10 +308,9 @@ void draw() {
   //wave.setFrequency((ball) + 200);
 
   
-  
   error = hand - ball;
   pOut = (int) kp * error;
-  integral = integral + (error / 100);
+  integral += error * 10; //fps
   iOut = (int) ki * integral;
   dOut = (int) kd * (error - previousError);
   correction = pOut + iOut + dOut;
