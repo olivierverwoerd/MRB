@@ -74,8 +74,8 @@ void setup() {
   //String[] cameras = Capture.list();
 
   //Change video source
-  //video = new Capture(this, 640, 480);//Access your webcam by default
-  video = new Capture(this, 640, 480, "name=Microsoft LifeCam Rear,size=640x480,fps=30",30);
+  video = new Capture(this, 640, 480);//Access your webcam by default
+  //video = new Capture(this, 640, 480, "name=Microsoft LifeCam Rear,size=640x480,fps=30",30);
 
   minim = new Minim(this);
 
@@ -305,8 +305,8 @@ void draw() {
   //////////////Arduno code////////////////////////// <- This is where the magic happens
   //ball = indicated in red. controlled on left
   //hand = indicated in blue. controlled on right
-  out.close();
-  //wave.setFrequency((ball) + 200);
+  //out.close();
+  wave.setFrequency((ball) + 200);
 
 
   error = hand - ball;
@@ -326,8 +326,8 @@ void draw() {
   } else if (correction < 0) {
     correction = 0;
   }
-
-  arduino.analogWrite(8, (int)correction);
+  correction = 191.25 + correction / 4;
+  arduino.analogWrite(4, (int)correction);
   counter++;
   println(correction);
   previousError = error;
